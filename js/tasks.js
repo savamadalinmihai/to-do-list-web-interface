@@ -18,8 +18,8 @@ window.ToDoList = {
         let deadlineValue = $("#deadline-field").val();
 
         let requestBody = {
-          description: descriptionValue,
-          deadline: deadlineValue
+            description: descriptionValue,
+            deadline: deadlineValue
         };
 
         $.ajax({
@@ -30,12 +30,12 @@ window.ToDoList = {
             // json stringify get a string from a JSON object
             // json parse to get a JSON object FROM a string.
             data: JSON.stringify(requestBody)
-            }).done(function () {
-             ToDoList.getTasks();
+        }).done(function () {
+            ToDoList.getTasks();
         })
     },
 
-    updateTask: function() {
+    updateTask: function () {
         let description;
         let deadline;
         let done;
@@ -73,7 +73,16 @@ window.ToDoList = {
             event.preventDefault();
 
             ToDoList.createTask();
-        })
+        });
+
+        //delegate is necesary here because the element .mark-done
+        // is not present in the page from the beginning, but injected later on.
+        $("#tasks-table").delegate(".mark-done", "change", function (event) {
+            event.preventDefault();
+
+            ToDoList.updateTask();
+        });
+        
     }
 
 };
