@@ -21,7 +21,6 @@ window.ToDoList = {
             description: descriptionValue,
             deadline: deadlineValue
         };
-
         $.ajax({
             url: ToDoList.API_BASE_URL,
             method: "POST",
@@ -35,10 +34,19 @@ window.ToDoList = {
         })
     },
 
-    updateTask: function () {
-        let description;
-        let deadline;
-        let done;
+    updateTask: function (id, done) {
+        //this function updates the task (for now only marks it done/undone)
+        let requestBody = {
+            done: done
+        };
+        $.ajax({
+            url: ToDoList.API_BASE_URL + "?id=" + id,
+            method: "PUT",
+            contentType: "application/json",
+            data: JSON.stringify(requestBody),
+        }).done(function () {
+            ToDoList.getTasks();
+        })
     },
 
     getTaskRow: function (task) {
@@ -46,15 +54,16 @@ window.ToDoList = {
         let formattedDeadline = new Date(...task.deadline).toLocaleDateString();
 
         // ternary operator (if else written in one line)
-        let checkedAttribute = task.done ? "checked" : "";
-
+        let checkedAttribute = task.done ? " checked" : "";
 
         return `<tr>
             <td>${task.description}</td>
             <td>${formattedDeadline}</td>
-            <td><input type="checkbox" data-id=1 class="mark-done" ${checkedAttribute}/>
-            <td><a href="#" data-id=1 class="delete-task"><i class="fas fa-trash-alt"></i></a></td>
-        </tr>`
+            <td><input type="checkbox" data-id=${task.id} class="mark-done" ${checkedAttribute}/>
+            <td><a href="#" data-id=${task.id} clkass="delete-task">
+            <i class="fas fa-trash-alt"></i>
+            </a></td>
+        </tr>`;
     },
 
     displayTasks: function (tasks) {
@@ -75,14 +84,19 @@ window.ToDoList = {
             ToDoList.createTask();
         });
 
-        //delegate is necesary here because the element .mark-done
+        //delegate is necessary here because the element .mark-done
         // is not present in the page from the beginning, but injected later on.
-        $("#tasks-table").delegate(".mark-done", "change", function (event) {
+        $("#tasks-table")
+            .delegate(".mark-done", "change", function (event) {
             event.preventDefault();
 
-            ToDoList.updateTask();
+            //with .data we read values of attributes prefixed with "data-"
+            let taskId = $(this).data("id");
+            let checked = $(this).is(":checked");
+
+            ToDoList.updateTask(taskId, checked);
         });
-        
+
     }
 
 };
