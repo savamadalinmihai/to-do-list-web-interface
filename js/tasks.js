@@ -13,6 +13,15 @@ window.ToDoList = {
         })
     },
 
+    deleteTask: function (id) {
+        $.ajax({
+            url: ToDoList.API_BASE_URL + "?id=" + id,
+            method: "DELETE"
+        }).done(function () {
+            ToDoList.getTasks();
+        })
+    },
+
     createTask: function () {
         let descriptionValue = $("#description-field").val();
         let deadlineValue = $("#deadline-field").val();
@@ -60,7 +69,7 @@ window.ToDoList = {
             <td>${task.description}</td>
             <td>${formattedDeadline}</td>
             <td><input type="checkbox" data-id=${task.id} class="mark-done" ${checkedAttribute}/>
-            <td><a href="#" data-id=${task.id} clkass="delete-task">
+            <td><a href="#" data-id=${task.id} class="delete-task">
             <i class="fas fa-trash-alt"></i>
             </a></td>
         </tr>`;
@@ -88,15 +97,23 @@ window.ToDoList = {
         // is not present in the page from the beginning, but injected later on.
         $("#tasks-table")
             .delegate(".mark-done", "change", function (event) {
-            event.preventDefault();
+                event.preventDefault();
 
-            //with .data we read values of attributes prefixed with "data-"
-            let taskId = $(this).data("id");
-            let checked = $(this).is(":checked");
+                //with .data we read values of attributes prefixed with "data-"
+                let taskId = $(this).data("id");
+                let checked = $(this).is(":checked");
 
-            ToDoList.updateTask(taskId, checked);
-        });
+                ToDoList.updateTask(taskId, checked);
+            });
 
+        $("#tasks-table")
+            .delegate(".delete-task", "click", function (event) {
+                event.preventDefault();
+
+                let taskID = $(this).data("id");
+
+                ToDoList.deleteTask(taskID);
+            })
     }
 
 };
