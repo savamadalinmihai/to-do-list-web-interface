@@ -90,6 +90,7 @@ window.ToDoList = {
         $("#new-task-form").submit(function (event) {
             event.preventDefault();
 
+
             ToDoList.createTask();
         });
 
